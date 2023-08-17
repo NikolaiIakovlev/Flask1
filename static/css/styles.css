@@ -15,7 +15,7 @@ a:hover {
     text-decoration: underline;
 }
 
-.clear {clear: :both;}
+.clear {clear: both;}
 
 ul.mainmenu {
     list-style: none;
