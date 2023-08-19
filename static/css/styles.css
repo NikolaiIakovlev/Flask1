@@ -34,7 +34,7 @@ ul.mainmenu li {
 ul.mainmenu li.last {float: right;}
 
 ul.mainmenu li a {
-    color: #fdc073;
+    color: PaleGoldenRod;;
     text-decoration: none;
 }
 ul.mainmenu li a:hover {
@@ -64,3 +64,22 @@ div.content {
     background: #ff9c9c;
 }
 
+ul.list-posts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 600px;
+}
+ul.list-posts li {
+    margin: 20px 0 0 0;
+    border: 1px solid #eee;
+}
+ul.list-posts .title {
+    margin: 0;
+    padding: 5px;
+    background: #eee;
+}
+ul.list-posts .annonce {
+    margin: 0;
+    padding: 10px 5px 10px 5px;
+}
