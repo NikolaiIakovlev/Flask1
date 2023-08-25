@@ -31,16 +31,26 @@ def create_db():
 
 
 def get_db():
-    """Соединение с базой данных, если оно еще не установлено"""
-    if not hasattr(g, 'db'):
-        g.db = connect_db()
-    return g.db
+    '''Соединение с БД, если оно еще не установлено'''
+    if not hasattr(g, 'link_db'):
+        g.link_db = connect_db()
+    return g.link_db
+
+
+dbase = None
+@app.before_request
+def before_request():
+    """Установление соединения с БД перед выполнением запроса"""
+    global dbase
+    db = get_db()
+    dbase = FDataBase(db)
+
 
 @app.teardown_appcontext
 def close_db(error):
-    """Закрытие соединения с базой данных"""
-    if hasattr(g, 'db'):
-        g.db.close()
+    '''Закрываем соединение с БД, если оно было установлено'''
+    if hasattr(g, 'link_db'):
+        g.link_db.close()
 
 @app.route("/")
 def index():

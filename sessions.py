@@ -4,7 +4,7 @@ import datetime
 #  os.urandom(20).hex()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8b60b641de8d7d5a0fcc8149e9e73eb07fa4c61e'
+app.config['SECRET_KEY'] = '8b60b641de8d7d5a0fcc8149e9e73eb07fa4c61e' # ключ для сессий
 app.permanent_session_lifetime = datetime.timedelta(days=10)
 
 @app.route("/")
