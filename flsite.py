@@ -1,7 +1,8 @@
 import sqlite3
 import os
-from flask import Flask, render_template, request, g, flash, abort
+from flask import Flask, render_template, request, g, flash, abort, redirect, url_for
 from FDataBase import FDataBase
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # конфигурация
 DATABASE = '/tmp/flsite.db'
@@ -38,7 +39,10 @@ def get_db():
 
 
 dbase = None
+#глобальная переменная 
+
 @app.before_request
+#перехват запросов для работы с бд. он выполинтся перед остальным кодом в функции
 def before_request():
     """Установление соединения с БД перед выполнением запроса"""
     global dbase
@@ -54,16 +58,11 @@ def close_db(error):
 
 @app.route("/")
 def index():
-    db = get_db()
-    dbase = FDataBase(db)
     return render_template('index.html', menu=dbase.getMenu(), posts=dbase.getPostsAnonce())
 
 
 @app.route("/add_post", methods=["POST", "GET"])
 def addPost():
-    db = get_db()
-    dbase = FDataBase(db)
- 
     if request.method == "POST":
         if len(request.form['name']) > 4 and len(request.form['post']) > 10:
             res = dbase.addPost(request.form['name'], request.form['post'], request.form['url'])
@@ -73,19 +72,40 @@ def addPost():
                 flash('Статья добавлена успешно', category='success')
         else:
             flash('Ошибка добавления статьи', category='error')
- 
-    return render_template('add_post.html', menu = dbase.getMenu(), title="Добавление статьи")
+    return render_template('add_post.html',
+                           menu=dbase.getMenu(), title="Добавление статьи")
 
 
 @app.route("/post/<alias>")
 def showPost(alias):
-    db = get_db()
-    dbase = FDataBase(db)
     title, post = dbase.getPost(alias)
     if not title:
         abort(404)
- 
-    return render_template('post.html', menu=dbase.getMenu(), title=title, post=post)
+    return render_template('post.html', menu=dbase.getMenu(),
+                           title=title, post=post)
+
+@app.route("/register", methods=["POST", "GET"])
+def register():
+    if request.method == "POST":
+        #session.pop('_flashes', None)
+        if len(request.form['name']) > 4 and len(request.form['email']) > 4 \
+            and len(request.form['psw']) > 4 and request.form['psw'] == request.form['psw2']:
+            hash = generate_password_hash(request.form['psw'])
+            res = dbase.addUser(request.form['name'], request.form['email'], hash)
+            if res:
+                flash("Вы успешно зарегистрированы", "success")
+                return redirect(url_for('login'))
+            else:
+                flash("Ошибка при добавлении в БД", "error")
+        else:
+            flash("Неверно заполнены поля", "error")
+    return render_template("register.html", menu=dbase.getMenu(), title="Регистрация")
+
+
+@app.route("/login")
+def login():
+    return render_template("login.html", menu=dbase.getMenu(),
+                           title="Авторизация")
 
 
 if __name__ == "__main__":
